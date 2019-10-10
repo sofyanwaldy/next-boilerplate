@@ -4,22 +4,21 @@ const next = require('next')
 const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
-const handle = app.getRequestHandler()
+// const middleware = require('./middleware/counter')
+const routes = require('./routes')
+const handler = routes.getRequestHandler(app)
 
 app.prepare().then(() => {
   const server = express()
-
-  server.get('/a', (req, res) => {
-    return app.render(req, res, '/a', req.query)
-  })
-
-  server.get('/b', (req, res) => {
-    return app.render(req, res, '/b', req.query)
-  })
-
-  server.get('/:slug', (req, res) => {
-    return app.render(req, res, '/slug', { slug: req.params.slug })
-  })
+  // server.use(async (req, res, next) => {
+  //   req.mid = 'midleware is run'
+  //   // middleware(req)
+  //   next()
+  // })
+  server.use(handler)
+  // server.get('/:slug', (req, res) => {
+  //   return app.render(req, res, '/slug', { slug: req.params.slug })
+  // })
 
   server.all('*', (req, res) => {
     return handle(req, res)
